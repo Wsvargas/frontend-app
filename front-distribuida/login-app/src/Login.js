@@ -22,7 +22,7 @@ function Login() {
         // 🔹 Guardar datos del usuario en localStorage
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user_id', response.data.user_id);
-        localStorage.setItem('role', response.data.role);  // Guardar el rol del usuario test1
+        localStorage.setItem('role', response.data.role);  // Guardar el rol del usuario test1 test 2
 
         // 🔹 Redirigir según el rol
         if (response.data.role === "admin") {
