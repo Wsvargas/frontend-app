@@ -5,6 +5,7 @@ import Login from './Login';
 import Register from './Register';  // 🔹 Importamos Register.js
 import Dashboard from './Dashboard';
 import PrivateRoute from './PrivateRoute';  // 🔹 Agregaremos una protección para rutas privadas
+import Reservas from './Reservas';
 
 function App() {
   return (
@@ -13,11 +14,17 @@ function App() {
         {/* 🔹 Rutas públicas (Login y Registro) */}
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
-        {/* 🔹 Ruta protegida (Dashboard) */}
+        
+        {/* 🔹 Rutas protegidas */}
         <Route path="/dashboard" element={
           <PrivateRoute>
             <Dashboard />
+          </PrivateRoute>
+        } />
+        
+        <Route path="/reservas" element={
+          <PrivateRoute>
+            <Reservas />
           </PrivateRoute>
         } />
       </Routes>

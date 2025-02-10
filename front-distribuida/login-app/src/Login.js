@@ -11,23 +11,22 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://54.83.42.239:5003/login', {
-        email,
-        password,
-      });
-  
-      if (response.status === 200) {
-        alert('Login exitoso');
-        console.log(response.data); // Puedes verificar la respuesta aquí
-        navigate('/dashboard'); // Redirige a la página del dashboard
-      } else {
-        setError('Usuario o contraseña incorrectos');
-      }
+        const response = await axios.post('http://54.83.42.239:5003/login', {
+            email,
+            password,
+        });
+
+        if (response.status === 200) {
+            alert('Inicio de sesión exitoso'); // Mostrar mensaje de éxito
+            navigate('/reservas');  // Redirige a la página de reservas
+        } else {
+            setError('Usuario o contraseña incorrectos');
+        }
     } catch (err) {
-      console.error(err);
-      setError('Error de credenciales');
+        console.error(err);
+        setError('Error de credenciales');
     }
-  };
+};
 
   return (
     <div className="container mt-5">

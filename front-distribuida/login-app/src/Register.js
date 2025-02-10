@@ -45,9 +45,10 @@ const Register = () => {
             if (!response.ok) {
                 throw new Error(data.error || 'Error en el registro');
             }
-    
-            console.log("✅ Registro exitoso:", data);
-            navigate('/login');
+            
+            if (window.confirm("✅ Registro exitoso. ¿Quieres ir al login?")) {
+                navigate('/login');
+            }
         } catch (error) {
             console.error("❌ Error en el registro:", error.message);
             setError(error.message);
