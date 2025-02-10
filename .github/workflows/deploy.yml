@@ -3,7 +3,7 @@ name: Deploy Frontend to EC2
 on:
   push:
     branches:
-      - test  # 🔹 Se ejecutará cuando se haga push en la rama testasdadtest2 test3
+      - test  # 🔹 Se ejecutará cuando se haga push en la rama testasdadtest2 test3 test4
 
 jobs:
   deploy:
@@ -20,36 +20,42 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.EC2_HOST_FRONT }} >> ~/.ssh/known_hosts
 
-    - name: 📡 Conectar y Desplegar el Frontend en EC2 (Sin Docker)
-      run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST_FRONT }} << 'EOF'
-          echo "✅ Conexión a EC2 exitosa. Iniciando despliegue..."
-
-          # Ir a la carpeta correcta
-          cd /home/ubuntu/frontend-app/front-distribuida/login-app
-
-          # Actualizar el código con los últimos cambios
-          git pull origin test
-
-          # Instalar dependencias de Node.js
-          npm install
-
-          # Construir la aplicación en producción
-          npm run build
-
-          # Asegurar que PM2 esté instalado
-          if ! command -v pm2 &> /dev/null; then
-            npm install -g pm2
-          fi
-
-          # Detener cualquier instancia previa de la app (si existe)
-          pm2 stop frontend || true
-
-          # Iniciar la aplicación con PM2 (para mantenerla corriendo)
-          pm2 start npm --name frontend -- start -- --host 0.0.0.0
-
-          # Guardar el proceso para que se inicie en caso de reinicio del sistema
-          pm2 save
-          pm2 startup systemd
-          echo "🚀 Despliegue completado exitosamente."
-        EOF
+        - name: 📡 Conectar y Desplegar el Frontend en EC2 (Orden Correcto)
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST_FRONT }} << 'EOF'
+            echo "✅ Conexión a EC2 exitosa. Iniciando despliegue..."
+      
+            # Asegurar que el usuario tenga permisos adecuados en el proyecto
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/frontend-app
+            sudo chmod -R 755 /home/ubuntu/frontend-app
+      
+            # Ir a la carpeta del frontend
+            cd /home/ubuntu/frontend-app/front-distribuida/login-app
+      
+            # Actualizar el código con los últimos cambios
+            git pull origin test
+      
+            # Instalar dependencias de Node.js
+            npm install --unsafe-perm
+      
+            # Construir la aplicación en producción
+            npm run build
+      
+            # Asegurar que PM2 esté instalado
+            if ! command -v pm2 &> /dev/null; then
+              sudo npm install -g pm2
+            fi
+      
+            # Detener cualquier instancia previa de la app (si existe)
+            pm2 stop frontend || true
+      
+            # Iniciar la aplicación con PM2 (para mantenerla corriendo)
+            pm2 start npm --name frontend -- start -- --host 0.0.0.0
+      
+            # Guardar el proceso para que se inicie en caso de reinicio del sistema
+            pm2 save
+            pm2 startup systemd
+      
+            echo "🚀 Despliegue completado exitosamente en /frontend-app/front-distribuida/login-app."
+          EOF
+      
