@@ -26,7 +26,7 @@ const Register = () => {
         console.log("📌 Datos enviados al backend:", formData);
     
         try {
-            const response = await fetch('http://44.201.86.146:5001/users', {
+            const response = await fetch('http://34.231.43.55:5001/users', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

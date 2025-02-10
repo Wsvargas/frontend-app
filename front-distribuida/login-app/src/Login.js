@@ -11,7 +11,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://44.211.220.179:5003/login', {
+      const response = await axios.post('http://54.83.42.239:5003/login', {
         email,
         password,
       });
