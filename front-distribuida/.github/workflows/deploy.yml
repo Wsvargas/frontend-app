@@ -3,7 +3,7 @@ name: Deploy Frontend to EC2
 on:
   push:
     branches:
-      - test  # 🔹 Cambia a la rama que deseas usar
+      - test  # 🔹 Cambia a la rama que deseas
 
 jobs:
   deploy:
@@ -16,13 +16,13 @@ jobs:
     - name: 🔑 Configurar Acceso SSH
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        echo "${{ secrets.EC2_SSH_PRIVATE_KEY_FRONT }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ secrets.EC2_HOST_FRONT }} >> ~/.ssh/known_hosts
 
     - name: 📡 Conectar y Actualizar Código en EC2
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST_FRONT }} << 'EOF'
           cd /home/ubuntu/frontend-app
           git pull origin test  # 🔹 Asegúrate de usar la misma rama
           docker compose -f docker-compose.yml up --build -d  # 🔹 Reiniciar contenedores Docker
