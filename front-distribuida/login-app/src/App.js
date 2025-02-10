@@ -6,6 +6,7 @@ import Register from './Register';  // 🔹 Importamos Register.js
 import Dashboard from './Dashboard';
 import PrivateRoute from './PrivateRoute';  // 🔹 Agregaremos una protección para rutas privadas
 import Reservas from './Reservas';
+import AdminFlights from './AdminFlights';  // 🔹 Nueva ruta para gestión de vuelos por admin
 
 function App() {
   return (
@@ -25,6 +26,12 @@ function App() {
         <Route path="/reservas" element={
           <PrivateRoute>
             <Reservas />
+          </PrivateRoute>
+        } />
+        
+        <Route path="/admin/flights" element={
+          <PrivateRoute>
+            <AdminFlights />
           </PrivateRoute>
         } />
       </Routes>

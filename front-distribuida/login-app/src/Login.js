@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
-  const [email, setEmail] = useState('');  // Aquí definimos email
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -11,22 +11,33 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const response = await axios.post('http://54.83.42.239:5003/login', {
-            email,
-            password,
-        });
+      const response = await axios.post('http://54.83.42.239:5003/login', {
+        email,
+        password,
+      });
 
-        if (response.status === 200) {
-            alert('Inicio de sesión exitoso'); // Mostrar mensaje de éxito
-            navigate('/reservas');  // Redirige a la página de reservas
+      if (response.status === 200) {
+        alert('Login exitoso');
+        
+        // 🔹 Guardar datos del usuario en localStorage
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user_id', response.data.user_id);
+        localStorage.setItem('role', response.data.role);  // Guardar el rol del usuario
+
+        // 🔹 Redirigir según el rol
+        if (response.data.role === "admin") {
+          navigate('/admin/flights');  // 🚀 Administrador va a gestión de vuelos
         } else {
-            setError('Usuario o contraseña incorrectos');
+          navigate('/reservas');  // 🚀 Usuario normal va a reservas
         }
+      } else {
+        setError('Usuario o contraseña incorrectos');
+      }
     } catch (err) {
-        console.error(err);
-        setError('Error de credenciales');
+      console.error(err);
+      setError('Error de credenciales');
     }
-};
+  };
 
   return (
     <div className="container mt-5">
@@ -54,7 +65,6 @@ function Login() {
         </div>
         {error && <div className="alert alert-danger">{error}</div>}
         <button type="submit" className="btn btn-primary">Iniciar sesión</button>
-        <button type="button" className="btn btn-secondary ms-2" onClick={() => navigate('/register')}>Registrarse</button>
       </form>
     </div>
   );

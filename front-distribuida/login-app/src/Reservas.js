@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 
 const Reservas = () => {
     const [reservas, setReservas] = useState([]);
+    const userId = localStorage.getItem('user_id');  // 🔹 Obtener el ID del usuario autenticado
 
     useEffect(() => {
-        fetch('http://localhost:5022/booking')  // Cambiar a la IP del backend en AWS
+        fetch(`http://localhost:5022/booking?user_id=${userId}`)  // 🔹 Filtrar por usuario autenticado
             .then(response => response.json())
             .then(data => setReservas(data))
             .catch(error => console.error('Error al obtener reservas:', error));
-    }, []);
+    }, [userId]);
 
     return (
         <div>
