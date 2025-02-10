@@ -46,7 +46,7 @@ function Login() {
         <div className="mb-3">
           <label className="form-label">Email</label>
           <input
-            type="email"
+            type="email test1"
             className="form-control"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
