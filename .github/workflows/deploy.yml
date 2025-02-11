@@ -20,21 +20,29 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.EC2_HOST_FRONT }} >> ~/.ssh/known_hosts
 
-    - name: 📡 Conectar y Desplegar el Frontend en EC2
-      run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST_FRONT }} << 'EOF'
-          echo "✅ Conexión a EC2 exitosa. Iniciando despliegue..."
-          
-          # Ir a la carpeta del frontend
-          cd /home/ubuntu/frontend-app/front-distribuida/login-app
-          
-          # Limpiar cambios locales y actualizar el código
-          git reset --hard
-          git clean -fd
-          git pull origin test --force
-
-          # Reiniciar la aplicación con PM2
-          pm2 restart frontend || pm2 start npm --name frontend -- start -- --host 0.0.0.0
-
-          echo "🚀 Despliegue completado exitosamente en /frontend-app/front-distribuida/login-app."
-        EOF
+        - name: 📡 Conectar y Desplegar el Frontend en EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST_FRONT }} << 'EOF'
+            echo "✅ Conexión a EC2 exitosa. Iniciando despliegue..."
+            
+            # Ir a la carpeta del frontend
+            cd /home/ubuntu/frontend-app/front-distribuida/login-app
+      
+            # Obtener cambios del repositorio
+            git fetch origin test
+            CHANGES=$(git rev-list HEAD...origin/test --count)
+      
+            if [ "$CHANGES" -gt 0 ]; then
+              echo "🔄 Se detectaron cambios. Actualizando código..."
+              git reset --hard
+              git clean -fd
+              git pull origin test --force
+      
+              # Reiniciar la aplicación solo si hubo cambios
+              pm2 restart frontend || pm2 start npm --name frontend -- start -- --host 0.0.0.0
+              echo "✅ Aplicación reiniciada con los nuevos cambios."
+            else
+              echo "⚡ No hay cambios en el código. No se reinicia la aplicación."
+            fi
+          EOF
+      
