@@ -19,7 +19,7 @@ const CheckoutForm = () => {
         // 🔹 Obtener `clientSecret` desde el microservicio de pagos
         const fetchClientSecret = async () => {
             try {
-                const response = await axios.post("http://18.204.253.128:5005/create-payment-intent", {
+                const response = await axios.post("http://44.204.12.160:5005/create-payment-intent", {
                     amount: 5000,  // 🔹 Ajustar según el precio real (en centavos)
                     currency: "usd"
                 });
