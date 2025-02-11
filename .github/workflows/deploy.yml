@@ -3,7 +3,7 @@ name: Deploy Frontend to EC2
 on:
   push:
     branches:
-      - test  # 🔹 Se ejecutará cuando se hssaga push en la rama test
+      - test  # 🔹 Se ejecutará cuando haya un push en la rama test test1
 
 jobs:
   deploy:
@@ -20,49 +20,21 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.EC2_HOST_FRONT }} >> ~/.ssh/known_hosts
 
-    - name: 📡 Conectar y Desplegar el Frontend en EC2 (Correcciones)
+    - name: 📡 Conectar y Desplegar el Frontend en EC2
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST_FRONT }} << 'EOF'
           echo "✅ Conexión a EC2 exitosa. Iniciando despliegue..."
-
-          # Corregir permisos para evitar errores de acceso
-          sudo chown -R ubuntu:ubuntu /home/ubuntu/frontend-app
-          sudo chmod -R 755 /home/ubuntu/frontend-app
-
+          
           # Ir a la carpeta del frontend
           cd /home/ubuntu/frontend-app/front-distribuida/login-app
-
-          # Limpiar cambios locales para evitar problemas de merge
+          
+          # Limpiar cambios locales y actualizar el código
           git reset --hard
           git clean -fd
           git pull origin test --force
 
-          # Actualizar Node.js si es necesario
-          sudo apt update
-          sudo apt install -y nodejs npm
-          sudo npm cache clean -f
-          sudo npm install -g n
-          sudo n stable
+          # Reiniciar la aplicación con PM2
+          pm2 restart frontend || pm2 start npm --name frontend -- start -- --host 0.0.0.0
 
-          # Instalar dependencias sin errores de permisos
-          npm install --unsafe-perm
-
-          # Construir la aplicación en producción
-          npm run build
-
-          # Asegurar que PM2 esté instalado
-          if ! command -v pm2 &> /dev/null; then
-            sudo npm install -g pm2
-          fi
-
-          # Detener cualquier instancia previa de la app (si existe)
-          pm2 stop frontend || true
-
-          # Iniciar la aplicación con PM2 (para mantenerla corriendo)
-          pm2 start npm --name frontend -- start -- --host 0.0.0.0
-
-          # Guardar el proceso en PM2 sin errores
-          pm2 save
-          
           echo "🚀 Despliegue completado exitosamente en /frontend-app/front-distribuida/login-app."
         EOF
