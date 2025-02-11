@@ -47,7 +47,7 @@ const Register = () => {
             }
             
             if (window.confirm("✅ Registro exitoso. ¿Quieres ir al login?")) {
-                navigate('/login');
+                navigate('/');
             }
         } catch (error) {
             console.error("❌ Error en el registro:", error.message);
