@@ -35,7 +35,7 @@ const CheckoutForm = () => {
             const userId = localStorage.getItem('user_id');  
             
             try {
-                const bookingResponse = await axios.post("http://localhost:5021/booking", {
+                const bookingResponse = await axios.post("http://54.172.40.36:5021/booking", {
                     user_id: userId,
                     flight_id: flightId,
                     booking_date: new Date().toISOString(),
