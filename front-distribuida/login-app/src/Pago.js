@@ -9,7 +9,7 @@ const stripePromise = loadStripe("pk_test_51Qr8qUQFRejcDSxhesf7yU4DqC8Vc2WiGeVHD
 const CheckoutForm = () => {
     const stripe = useStripe();
     const elements = useElements();
-    const { flightId } = useParams();  // 🔹 Obtener `flightId` desde la URL
+    const { flightId } = useParams();  // 🔹 Obtener `flightId` desde la URL sin probar
     const [message, setMessage] = useState("");
 
     const handleSubmit = async (event) => {
@@ -35,7 +35,7 @@ const CheckoutForm = () => {
             const userId = localStorage.getItem('user_id');  
             
             try {
-                const bookingResponse = await axios.post("http://54.172.40.36:5021/booking", {
+                const bookingResponse = await axios.post("http://18.204.253.128:5021/booking", {
                     user_id: userId,
                     flight_id: flightId,
                     booking_date: new Date().toISOString(),
