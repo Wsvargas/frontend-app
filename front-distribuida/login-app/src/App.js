@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './Login';
 import Register from './Register';  // 🔹 Importamos Register.js test
 import Dashboard from './Dashboard';
-import PrivateRoute from './PrivateRoute';  // 🔹 Agregaremos una protección para rutas privadas
+import PrivateRoute from './PrivateRoute';  // 🔹 Agregaremos una protección para rutas privadas test2
 import Reservas from './Reservas';
 import Pago from './Pago';
 import AdminFlights from './AdminFlights';  // 🔹 Nueva ruta para gestión de vuelos por administrador
