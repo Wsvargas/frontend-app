@@ -53,21 +53,21 @@ const CheckoutForm = () => {
             setMessage("✅ Pago exitoso");
     
             // 🔹 Guardar la reserva después del pago exitoso
-            const userId = localStorage.getItem('user_id');  
-            console.log("🔍 userId obtenido (antes de conversión):", userId);
-            console.log("🔍 flightId obtenido (antes de conversión):", flightId);
-    
-            // 🔹 Convertir a número entero
-            const parsedUserId = parseInt(userId, 10);
+            const userId = parseInt(localStorage.getItem('user_id'), 10);
             const parsedFlightId = parseInt(flightId, 10);
     
-            console.log("🔹 Enviando reserva con:", { user_id: parsedUserId, flight_id: parsedFlightId });
+            // 🔹 Formatear `booking_date` sin milisegundos
+            const bookingDate = new Date().toISOString().split('.')[0] + "Z";
+    
+            console.log("🔍 userId obtenido:", userId);
+            console.log("🔍 flightId obtenido:", parsedFlightId);
+            console.log("🔹 Enviando reserva con:", { user_id: userId, flight_id: parsedFlightId, booking_date: bookingDate });
     
             try {
                 const bookingResponse = await axios.post("http://18.204.253.128:5021/booking", {
-                    user_id: parsedUserId,  // 🔹 Convertido a entero
+                    user_id: userId,  // 🔹 Convertido a entero
                     flight_id: parsedFlightId,  // 🔹 Convertido a entero
-                    booking_date: new Date().toISOString(),
+                    booking_date: bookingDate,  // 🔹 Fecha correctamente formateada
                     status: "confirmed"
                 });
     
@@ -75,7 +75,7 @@ const CheckoutForm = () => {
     
                 if (bookingResponse.status === 201) {
                     setMessage("✅ Reserva confirmada. Redirigiendo...");
-                    setTimeout(() => navigate("/reservas"), 3000); // 🔹 Redirige a reservas después de 3 seg
+                    setTimeout(() => navigate("/reservas"), 3000);
                 } else {
                     setMessage("⚠️ Pago exitoso, pero error al registrar reserva.");
                 }
@@ -85,6 +85,7 @@ const CheckoutForm = () => {
             }
         }
     };
+    
     
 
     return (
