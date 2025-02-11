@@ -18,11 +18,11 @@ function Login() {
 
       if (response.status === 200) {
         alert('Login exitoso');
-        
+
         // 🔹 Guardar datos del usuario en localStorage
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user_id', response.data.user_id);
-        localStorage.setItem('role', response.data.role);  // Guardar el rol del usuario test1 test 2
+        localStorage.setItem('role', response.data.role);  // Guardar el rol del usuario
 
         // 🔹 Redirigir según el rol
         if (response.data.role === "admin") {
@@ -46,7 +46,7 @@ function Login() {
         <div className="mb-3">
           <label className="form-label">Email</label>
           <input
-            type="email test1"
+            type="email"
             className="form-control"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -65,6 +65,15 @@ function Login() {
         </div>
         {error && <div className="alert alert-danger">{error}</div>}
         <button type="submit" className="btn btn-primary">Iniciar sesión</button>
+        
+        {/* 🔹 Botón para ir al registro */}
+        <button 
+          type="button" 
+          className="btn btn-secondary ms-2"
+          onClick={() => navigate('/register')}
+        >
+          Registrarse
+        </button>
       </form>
     </div>
   );
