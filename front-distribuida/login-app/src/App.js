@@ -6,7 +6,7 @@ import Register from './Register';  // 🔹 Importamos Register.js
 import Dashboard from './Dashboard';
 import PrivateRoute from './PrivateRoute';  // 🔹 Agregaremos una protección para rutas privadas
 import Reservas from './Reservas';
-import AdminFlights from './AdminFlights';  // 🔹 Nueva ruta para gestión de vuelos por admin
+import AdminFlights from './AdminFlights';  // 🔹 Nueva ruta para gestión de vuelos por administrador
 
 function App() {
   return (
