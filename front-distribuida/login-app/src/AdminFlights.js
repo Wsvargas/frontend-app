@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://13.216.49.242'; // Reemplaza con la IP de tu instancia
+const API_BASE_URL = 'http://34.207.193.135'; // Reemplaza con la IP de tu instancia
 
 const AdminFlights = () => {
     const [flights, setFlights] = useState([]);
