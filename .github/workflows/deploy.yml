@@ -3,8 +3,8 @@ name: Deploy Frontend to EC2
 on:
   push:
     branches:
-      - test  # 🔹 Se ejecutará cuando haya un push en la rama test test1 test2
-
+      - test  # 🔹 Se ejecutará cuando haya un push en la rama `test`
+  
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -20,29 +20,48 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.EC2_HOST_FRONT }} >> ~/.ssh/known_hosts
 
-        - name: 📡 Conectar y Desplegar el Frontend en EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST_FRONT }} << 'EOF'
-            echo "✅ Conexión a EC2 exitosa. Iniciando despliegue..."
-            
-            # Ir a la carpeta del frontend
-            cd /home/ubuntu/frontend-app/front-distribuida/login-app
-      
-            # Obtener cambios del repositorio
-            git fetch origin test
-            CHANGES=$(git rev-list HEAD...origin/test --count)
-      
-            if [ "$CHANGES" -gt 0 ]; then
-              echo "🔄 Se detectaron cambios. Actualizando código..."
-              git reset --hard
-              git clean -fd
-              git pull origin test --force
-      
-              # Reiniciar la aplicación solo si hubo cambios
-              pm2 restart frontend || pm2 start npm --name frontend -- start -- --host 0.0.0.0
-              echo "✅ Aplicación reiniciada con los nuevos cambios."
-            else
-              echo "⚡ No hay cambios en el código. No se reinicia la aplicación."
-            fi
-          EOF
-      
+    - name: 📡 Conectar y Desplegar el Frontend en EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST_FRONT }} << 'EOF'
+          echo "✅ Conexión a EC2 exitosa. Iniciando despliegue..."
+
+          # 📌 Usar lockfile para evitar múltiples despliegues simultáneos
+          LOCKFILE="/tmp/deploy.lock"
+          if [ -f "\$LOCKFILE" ]; then
+            echo "⚠️ Despliegue en curso. Saliendo..."
+            exit 0
+          fi
+          touch "\$LOCKFILE"
+
+          # 📌 Ir a la carpeta del frontend
+          cd /home/ubuntu/frontend-app/front-distribuida/login-app || exit 1
+
+          # 📌 Verificar si hay cambios antes de actualizar
+          git fetch origin test
+          LOCAL_COMMIT=\$(git rev-parse HEAD)
+          REMOTE_COMMIT=\$(git rev-parse origin/test)
+
+          if [ "\$LOCAL_COMMIT" = "\$REMOTE_COMMIT" ]; then
+            echo "🔹 No hay cambios en el código. No se reiniciará el frontend."
+            rm -f "\$LOCKFILE"
+            exit 0
+          fi
+
+          echo "📌 Actualizando código..."
+          git reset --hard
+          git clean -fd
+          git pull origin test --force
+
+          # 📌 Instalar dependencias solo si hay cambios
+          if [ -f "package.json" ]; then
+            npm install
+          fi
+
+          # 📌 Reiniciar la aplicación solo si es necesario
+          pm2 restart frontend || pm2 start npm --name frontend -- start -- --host 0.0.0.0
+
+          # 📌 Eliminar lockfile después del despliegue exitoso
+          rm -f "\$LOCKFILE"
+
+          echo "🚀 Despliegue completado exitosamente en /frontend-app/front-distribuida/login-app."
+        EOF
