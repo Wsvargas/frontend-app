@@ -34,38 +34,45 @@ const CheckoutForm = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
+    
         if (!stripe || !elements || !clientSecret) {
             setMessage("⚠️ Stripe aún no está listo.");
             return;
         }
-
+    
         const result = await stripe.confirmCardPayment(clientSecret, {
             payment_method: {
                 card: elements.getElement(CardElement),
                 billing_details: { email: "cliente@example.com" }
             }
         });
-
+    
         if (result.error) {
             setMessage(`❌ Error: ${result.error.message}`);
         } else if (result.paymentIntent.status === "succeeded") {
             setMessage("✅ Pago exitoso");
-
+    
             // 🔹 Guardar la reserva después del pago exitoso
             const userId = localStorage.getItem('user_id');  
-            console.log("🔍 userId obtenido:", userId);
-
+            console.log("🔍 userId obtenido (antes de conversión):", userId);
+            console.log("🔍 flightId obtenido (antes de conversión):", flightId);
+    
+            // 🔹 Convertir a número entero
+            const parsedUserId = parseInt(userId, 10);
+            const parsedFlightId = parseInt(flightId, 10);
+    
+            console.log("🔹 Enviando reserva con:", { user_id: parsedUserId, flight_id: parsedFlightId });
+    
             try {
-                console.log("🔹 Enviando reserva con:", { user_id: userId, flight_id: flightId });
                 const bookingResponse = await axios.post("http://18.204.253.128:5021/booking", {
-                    user_id: userId,
-                    flight_id: flightId,
+                    user_id: parsedUserId,  // 🔹 Convertido a entero
+                    flight_id: parsedFlightId,  // 🔹 Convertido a entero
                     booking_date: new Date().toISOString(),
                     status: "confirmed"
                 });
+    
                 console.log("✅ Respuesta de reserva:", bookingResponse.data);
-
+    
                 if (bookingResponse.status === 201) {
                     setMessage("✅ Reserva confirmada. Redirigiendo...");
                     setTimeout(() => navigate("/reservas"), 3000); // 🔹 Redirige a reservas después de 3 seg
@@ -74,10 +81,11 @@ const CheckoutForm = () => {
                 }
             } catch (error) {
                 console.error("⚠️ Error al guardar la reserva:", error.response?.data || error.message);
-                setMessage("⚠️ Error al guardar la reserva: " + error.message);
+                setMessage("⚠️ Error al guardar la reserva: " + (error.response?.data?.error || error.message));
             }
         }
     };
+    
 
     return (
         <form onSubmit={handleSubmit}>
