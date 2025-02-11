@@ -11,7 +11,7 @@ const Reservas = () => {
 
     // 🔹 Obtener vuelos disponibles con asientos y fecha válida
     useEffect(() => {
-        axios.get('http://13.216.49.242/flights')
+        axios.get('http://13.216.49.242:5032/flights')
             .then(response => {
                 const vuelosDisponibles = response.data.filter(flight => 
                     flight.status === "active" && 
