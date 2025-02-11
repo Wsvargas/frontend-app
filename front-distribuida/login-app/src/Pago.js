@@ -54,14 +54,17 @@ const CheckoutForm = () => {
 
             // 🔹 Guardar la reserva después del pago exitoso
             const userId = localStorage.getItem('user_id');  
+            console.log("🔍 userId obtenido:", userId);
 
             try {
+                console.log("🔹 Enviando reserva con:", { user_id: userId, flight_id: flightId });
                 const bookingResponse = await axios.post("http://18.204.253.128:5021/booking", {
                     user_id: userId,
                     flight_id: flightId,
                     booking_date: new Date().toISOString(),
                     status: "confirmed"
                 });
+                console.log("✅ Respuesta de reserva:", bookingResponse.data);
 
                 if (bookingResponse.status === 201) {
                     setMessage("✅ Reserva confirmada. Redirigiendo...");
@@ -70,6 +73,7 @@ const CheckoutForm = () => {
                     setMessage("⚠️ Pago exitoso, pero error al registrar reserva.");
                 }
             } catch (error) {
+                console.error("⚠️ Error al guardar la reserva:", error.response?.data || error.message);
                 setMessage("⚠️ Error al guardar la reserva: " + error.message);
             }
         }
