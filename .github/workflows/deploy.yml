@@ -3,7 +3,7 @@ name: Deploy Frontend to EC2
 on:
   push:
     branches:
-      - test  # 🔹 Se ejecutará cuando haya un push en la rama test test1
+      - test  # 🔹 Se ejecutará cuando haya un push en la rama test test1 test2
 
 jobs:
   deploy:
