@@ -4,7 +4,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import axios from "axios";
 
-// 🔹 Cargar Stripe con la clave pública (SEGURO)
+// 🔹 Cargar Stripe de manera segura
 const stripePromise = loadStripe("pk_test_51Qr8qUQFRejcDSxhesf7yU4DqC8Vc2WiGeVHDqPj1tTCDV6DCocSZnLHTVjJqoqfayrbxKuwhGvPzoDnzq8Vxwhm00XZKdpun5");
 
 const CheckoutForm = () => {
@@ -16,11 +16,11 @@ const CheckoutForm = () => {
     const [clientSecret, setClientSecret] = useState(null);
 
     useEffect(() => {
-        // 🔹 Obtener `clientSecret` desde el microservicio de pagos
+        // 🔹 Obtener `clientSecret` desde el backend antes de mostrar el formulario
         const fetchClientSecret = async () => {
             try {
                 const response = await axios.post("http://44.204.12.160:5005/create-payment-intent", {
-                    amount: 5000,  // 🔹 Ajustar según el precio real (en centavos)
+                    amount: 5000,  // 🔹 Ajustar según el precio real en centavos
                     currency: "usd"
                 });
                 setClientSecret(response.data.clientSecret);
@@ -35,7 +35,10 @@ const CheckoutForm = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        if (!stripe || !elements || !clientSecret) return;
+        if (!stripe || !elements || !clientSecret) {
+            setMessage("⚠️ Stripe aún no está listo.");
+            return;
+        }
 
         const result = await stripe.confirmCardPayment(clientSecret, {
             payment_method: {
