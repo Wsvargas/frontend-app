@@ -57,7 +57,8 @@ const CheckoutForm = () => {
             const parsedFlightId = parseInt(flightId, 10);
     
             // 🔹 Formatear `booking_date` sin milisegundos
-            const bookingDate = new Date().toISOString().split('.')[0] + "Z";
+            const bookingDate = new Date().toISOString().split('.')[0]; // 🔹 Elimina la "Z"
+
     
             console.log("🔍 userId obtenido:", userId);
             console.log("🔍 flightId obtenido:", parsedFlightId);
