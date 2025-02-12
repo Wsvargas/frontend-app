@@ -19,7 +19,7 @@ const CheckoutForm = () => {
         // 🔹 Obtener `clientSecret` desde el backend antes de mostrar el formulario
         const fetchClientSecret = async () => {
             try {
-                const response = await axios.post("http://3.211.238.28/create-payment-intent", {
+                const response = await axios.post("http://3.211.238.28:5005/create-payment-intent", {
                     amount: 5000,  // 🔹 Ajustar según el precio real en centavos
                     currency: "usd"
                 });
