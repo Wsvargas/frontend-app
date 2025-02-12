@@ -16,7 +16,7 @@ const Reservas = () => {
 
         const fetchReservas = async () => {
             try {
-                const response = await axios.get(`http://13.216.49.242:5022/booking?user_id=${userId}`);
+                const response = await axios.get(`http://18.204.253.128/booking?user_id=${userId}`);
                 const reservasData = response.data;
 
                 // 🔹 Obtener los detalles de cada vuelo reservado
