@@ -3,71 +3,80 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Reservas = () => {
-    const [vuelos, setVuelos] = useState([]);  // 🔹 Lista de vuelos disponibles
-    const [selectedFlight, setSelectedFlight] = useState(null);  // 🔹 Vuelo seleccionado
+    const [reservas, setReservas] = useState([]); // 🔹 Lista de reservas del usuario
     const [error, setError] = useState('');
-    const userId = localStorage.getItem('user_id');  // 🔹 Obtener usuario autenticado
-    const navigate = useNavigate();
+    const userId = localStorage.getItem('user_id'); // 🔹 ID del usuario autenticado
 
-    // 🔹 Obtener vuelos disponibles con asientos y fecha válida
+    // 🔹 Obtener reservas del usuario autenticado
     useEffect(() => {
-        axios.get('http://13.216.49.242:5032/flights')
-            .then(response => {
-                const vuelosDisponibles = response.data.filter(flight => 
-                    flight.status === "active" && 
-                    flight.available_seats > 0 &&
-                    new Date(flight.departure_time) > new Date() // 🔹 Solo vuelos en el futuro
-                );
-                setVuelos(vuelosDisponibles);
-            })
-            .catch(error => setError('Error al obtener vuelos: ' + error.message));
-    }, []);
-
-    // 🔹 Manejar selección de vuelo
-    const handleSelectFlight = (flight) => {
-        setSelectedFlight(flight);
-    };
-
-    // 🔹 Al hacer clic en "Reservar", ir a la página de pago con el vuelo seleccionado
-    const handleReserve = () => {
-        if (!selectedFlight) {
-            alert("Selecciona un vuelo antes de reservar");
+        if (!userId) {
+            setError("⚠️ No se encontró el ID del usuario.");
             return;
         }
 
-        // Guardar los datos en memoria antes de redirigir al pago
-        localStorage.setItem('selectedFlight', JSON.stringify(selectedFlight));
+        const fetchReservas = async () => {
+            try {
+                const response = await axios.get(`http://13.216.49.242:5022/booking?user_id=${userId}`);
+                const reservasData = response.data;
 
-        // Redirigir a la página de pago con el `flight_id`
-        navigate(`/pago/${selectedFlight.id}`);
-    };
+                // 🔹 Obtener los detalles de cada vuelo reservado
+                const reservasConDetalles = await Promise.all(
+                    reservasData.map(async (reserva) => {
+                        try {
+                            const vueloResponse = await axios.get(`http://13.216.49.242:5033/flights/${reserva.flight_id}`);
+                            return {
+                                ...reserva,
+                                vuelo: vueloResponse.data,
+                            };
+                        } catch (error) {
+                            console.error(`⚠️ Error al obtener detalles del vuelo ${reserva.flight_id}:`, error);
+                            return { ...reserva, vuelo: null };
+                        }
+                    })
+                );
+
+                setReservas(reservasConDetalles);
+            } catch (error) {
+                setError("⚠️ Error al obtener reservas: " + error.message);
+            }
+        };
+
+        fetchReservas();
+    }, [userId]);
 
     return (
-        <div>
-            <h2>Vuelos Disponibles</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+        <div className="container mt-4">
+            <h2>Mis Reservas</h2>
 
-            <ul>
-                {vuelos.map(flight => (
-                    <li key={flight.id}>
-                        {flight.origin} → {flight.destination} | 
-                        Salida: {new Date(flight.departure_time).toLocaleString()} | 
-                        Asientos Disponibles: {flight.available_seats} 
-                        <button onClick={() => handleSelectFlight(flight)}>Seleccionar</button>
-                    </li>
-                ))}
-            </ul>
+            {error && <p className="alert alert-danger">{error}</p>}
 
-            {selectedFlight && (
-                <div>
-                    <h3>Vuelo Seleccionado</h3>
-                    <p>
-                        {selectedFlight.origin} → {selectedFlight.destination} <br />
-                        Salida: {new Date(selectedFlight.departure_time).toLocaleString()} <br />
-                        Asientos Disponibles: {selectedFlight.available_seats}
-                    </p>
-                    <button onClick={handleReserve} className="btn btn-success">Reservar</button>
-                </div>
+            {reservas.length > 0 ? (
+                <table className="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID Reserva</th>
+                            <th>Vuelo</th>
+                            <th>Origen</th>
+                            <th>Destino</th>
+                            <th>Fecha de Reserva</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {reservas.map((reserva) => (
+                            <tr key={reserva.id_reserva}>
+                                <td>{reserva.id_reserva}</td>
+                                <td>{reserva.flight_id}</td>
+                                <td>{reserva.vuelo ? reserva.vuelo.origin : "No disponible"}</td>
+                                <td>{reserva.vuelo ? reserva.vuelo.destination : "No disponible"}</td>
+                                <td>{new Date(reserva.booking_date).toLocaleString()}</td>
+                                <td>{reserva.status}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            ) : (
+                <p>No tienes reservas registradas.</p>
             )}
         </div>
     );
